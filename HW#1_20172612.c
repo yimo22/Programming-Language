@@ -8,11 +8,22 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#define MAX 100
-#define LETTER 0
-#define DIGIT 1
-#define UNKNOWN 99
-#define IDENT 11
+enum TokenCode
+{
+    // Token Code
+    LETTER = 0,  // 문자열
+    DIGIT,       // 숫자
+    IDENT,       // 식별자
+    ADD_OP,      // '+'
+    SUB_OP,      // '-'
+    MULT_OP,     // '*'
+    DIV_OP,      // '/'
+    LEFT_PAREN,  // '('
+    RIGHT_PAREN, // ')'
+    INT_LIT,     // 상수
+    UNKNOWN = 99,
+    MAX
+};
 
 bool IsError = false;
 
@@ -25,14 +36,6 @@ int lexLen = 0;
 int InputPos = 0;
 int nextToken;
 
-// Token Code
-#define ADD_OP 21
-#define SUB_OP 22
-#define MULT_OP 23
-#define DIV_OP 24
-#define LEFT_PAREN 25
-#define RIGHT_PAREN 26
-#define INT_LIT 123
 typedef struct Variable
 {
     char name;
@@ -46,7 +49,7 @@ void express();
 void EraseStrSpace(char *str)
 {
     // str의 i번째 index 부터 공백을 지움
-    for (int index =0; index < strlen(str); index++)
+    for (int index = 0; index < strlen(str); index++)
     {
         if (str[index] == ' ')
         {
@@ -140,8 +143,6 @@ int lex()
         }
         nextToken = IDENT;
         break;
-        //  printf("lexeme : %s\nstrlen : %lu\n", lexeme, strlen(lexeme));
-
     case DIGIT:
         addChar();
         getChar();
@@ -152,12 +153,10 @@ int lex()
         }
         nextToken = INT_LIT;
         break;
-
     case UNKNOWN:
         lookup(nextChar);
         getChar();
         break;
-
     default:
         break;
     }
@@ -194,7 +193,6 @@ int factor()
     {
         if (nextToken == LEFT_PAREN)
         {
-            //lex();
             express();
             return atoi(lexeme);
         }
@@ -266,23 +264,25 @@ void express()
         }
     }
 }
-int main()
+void InterPreter()
 {
-
     while (1)
     {
         printf(" >> ");
+
+        // Get input end with \0
         fgets(input, sizeof(input), stdin);
         input[strlen(input) - 1] = '\0';
         InputPos = 0;
         IsError = false;
         getChar();
+        // Get next token
         lex();
         if (!strcmp(lexeme, "print"))
         {
             // case - Print
             express();
-            if(!IsError)
+            if (!IsError)
                 printf("Result : %d\n", atoi(lexeme));
         }
         else if (strlen(lexeme) == 1)
@@ -325,4 +325,9 @@ int main()
             printf("Error - the length of variable must be 1\n");
         }
     }
+}
+int main()
+{
+    InterPreter();
+    return 0;
 }
